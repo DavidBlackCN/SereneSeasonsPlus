@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "gaboulibs",
+  "version": "${version}",
+  "name": "GabousLibs",
+  "description": "Common utilities shared across Gabou's mods.",
+  "authors": [
+    "Gabou"
+  ],
+  "contact": {
+    "homepage": ""
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/gaboulibs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.Gabou.gaboulibs.fabric.GaboulibsFabric"
+    ],
+    "client": [
+      "net.Gabou.gaboulibs.fabric.client.GaboulibsFabricClient"
+    ]
+  },
+  "mixins": [
+    "gaboulibs.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.3",
+    "java": ">=25",
+    "architectury": ">=22.0.5",
+    "fabric-api": ">=0.163.0+26.3"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

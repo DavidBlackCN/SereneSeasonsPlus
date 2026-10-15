@@ -1,0 +1,10 @@
+plugins {
+    id "net.fabricmc.fabric-loom"
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    compileOnly "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    compileOnly "dev.architectury:architectury:${rootProject.architectury_api_version}"
+    compileOnly "org.spongepowered:mixin:0.8.7"
+    compileOnly "curse.maven:serene-seasons-291874:8938722"
+}

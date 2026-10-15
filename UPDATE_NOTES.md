@@ -1,0 +1,2 @@
+- 🔧 build(26.3): migrate GabouLibs to Minecraft 26.3 with Fabric and NeoForge support, Java 25, and updated loader dependencies.
+- 🐛 fix(abilities): adapt velocity synchronization and server-side item drops to the Minecraft 26.3 API.

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "net.Gabou.gaboulibs.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8.7",
+  "client": [
+    "ScreenMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

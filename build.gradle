@@ -1,0 +1,107 @@
+plugins {
+    id "net.fabricmc.fabric-loom" version "1.17.21" apply false
+    id 'net.neoforged.gradle.userdev' version '7.1.39' apply false
+    id "io.github.themrmilchmann.curseforge-publish" version "0.9.0" apply false
+    id "com.modrinth.minotaur" version "2.8.10" apply false // Modrinth uploader
+
+}
+
+
+allprojects {
+    group = rootProject.maven_group
+    version = rootProject.mod_version
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.release = 25
+    }
+}
+
+subprojects {
+
+    base {
+        // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
+        archivesName = "$rootProject.archives_name-$project.name"
+    }
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.neoforged.net/releases' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        // Architectury API and its platform implementations are published here.
+        maven {
+            name = "Architectury"
+            url = "https://maven.architectury.dev/"
+        }
+        maven {
+            name = "CurseMaven"
+            url = "https://cursemaven.com"
+        }
+        maven {
+            url = "https://api.modrinth.com/maven"
+        }
+    }
+
+
+
+    java {
+        // Both platform source sets include common code, including in their sources jars.
+        withSourcesJar()
+
+        toolchain.languageVersion = JavaLanguageVersion.of(25)
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
+    }
+
+
+    // Configure Maven publishing.
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = base.archivesName.get()
+                from components.java
+            }
+        }
+
+        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+        repositories {
+            // Local development publishing targets
+            mavenLocal()
+            maven {
+                name = "localBuildRepo"
+                url = uri("${rootProject.buildDir}/maven-repo")
+            }
+            // The repositories here will be used for publishing your artifact, not for
+            // retrieving dependencies.
+        }
+    }
+}
+
+// Convenience task to publish all platform jars to mavenLocal
+tasks.register('publishAllToMavenLocal') {
+    group = 'publishing'
+    description = 'Publishes common, fabric and neoforge modules to mavenLocal.'
+    dependsOn ':common:publishToMavenLocal', ':fabric:publishToMavenLocal', ':neoforge:publishToMavenLocal'
+}
+
+subprojects {
+    sourceSets {
+        migrationTest {
+            java.srcDir rootProject.file('common/src/migrationTest/java')
+            compileClasspath += sourceSets.main.output + files(provider { sourceSets.main.compileClasspath })
+            runtimeClasspath += sourceSets.main.output + files(provider { sourceSets.main.runtimeClasspath })
+        }
+    }
+    configurations.migrationTestImplementation.extendsFrom configurations.implementation
+    configurations.migrationTestRuntimeOnly.extendsFrom configurations.runtimeOnly
+    dependencies { migrationTestImplementation 'org.ow2.asm:asm-tree:9.8' }
+    tasks.register('checkMigration', JavaExec) {
+        dependsOn tasks.named('migrationTestClasses')
+        classpath = sourceSets.migrationTest.runtimeClasspath
+        mainClass = 'net.Gabou.gaboulibs.MigrationChecks'
+        minHeapSize = '64m'
+        maxHeapSize = '256m'
+    }
+    tasks.named('check') { dependsOn tasks.named('checkMigration') }
+}
