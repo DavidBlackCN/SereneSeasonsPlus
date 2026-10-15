@@ -46,7 +46,7 @@ public class SereneSeasonsPlusFabric extends SereneSeasonPlusCommon implements M
 
 
         // Server tick hook
-        ServerTickEvents.START_WORLD_TICK.register(this::onWorldTick);
+        ServerTickEvents.START_LEVEL_TICK.register(this::onWorldTick);
 
         // If you have client-only stuff, register it in SereneSeasonsPlusClientFabric
     }
@@ -112,9 +112,8 @@ public class SereneSeasonsPlusFabric extends SereneSeasonPlusCommon implements M
         }
     }
 
-    private void onChunkLoad(ServerLevel level, ChunkAccess chunkAccess) {
+    private void onChunkLoad(ServerLevel level, LevelChunk chunk, boolean generated) {
         if (level == null) return;
-        if (!(chunkAccess instanceof net.minecraft.world.level.chunk.LevelChunk chunk)) return;
         if (level.isClientSide()) return;
         if (level.dimension() != Level.OVERWORLD) return;
         // Cache surface height only; no enqueue to avoid dual input

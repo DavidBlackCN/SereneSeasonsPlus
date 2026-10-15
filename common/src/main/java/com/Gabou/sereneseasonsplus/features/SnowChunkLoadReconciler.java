@@ -26,7 +26,7 @@ public final class SnowChunkLoadReconciler {
 
     public void enqueue(LevelChunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
-        long key = ChunkPos.asLong(chunkPos.x, chunkPos.z);
+        long key = ChunkPos.pack(chunkPos.x(), chunkPos.z());
         if (queuedChunkKeys.add(key)) {
             pendingLoads.add(chunkPos);
         }
@@ -45,17 +45,17 @@ public final class SnowChunkLoadReconciler {
         ChunkPos chunkPos;
         int processed = 0;
         while ((chunkPos = pendingLoads.poll()) != null) {
-            queuedChunkKeys.remove(ChunkPos.asLong(chunkPos.x, chunkPos.z));
+            queuedChunkKeys.remove(ChunkPos.pack(chunkPos.x(), chunkPos.z()));
             if (processed >= minChunks && (processed >= maxChunks || System.nanoTime() >= deadlineNanos)) {
                 requeue(chunkPos);
                 break;
             }
 
-            if (!level.hasChunk(chunkPos.x, chunkPos.z)) {
+            if (!level.hasChunk(chunkPos.x(), chunkPos.z())) {
                 continue;
             }
 
-            LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+            LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
             if (!(chunk instanceof ISnowTrackedChunk tracked)) {
                 continue;
             }
@@ -68,7 +68,7 @@ public final class SnowChunkLoadReconciler {
     }
 
     private void requeue(ChunkPos chunkPos) {
-        long key = ChunkPos.asLong(chunkPos.x, chunkPos.z);
+        long key = ChunkPos.pack(chunkPos.x(), chunkPos.z());
         if (queuedChunkKeys.add(key)) {
             pendingLoads.add(chunkPos);
         }

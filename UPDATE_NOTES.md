@@ -1,0 +1,1 @@
+- 🔧 build(26.3): 将 Fabric 与 NeoForge 构建目标更新为 Minecraft 26.3 和 Java 25，并生成包含公共代码的双加载器产物。

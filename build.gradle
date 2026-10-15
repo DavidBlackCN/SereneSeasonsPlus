@@ -15,23 +15,18 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.modrinth.minotaur:Minotaur:2.+'
+        classpath 'com.modrinth.minotaur:Minotaur:2.10.0'
         classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.3'
-        classpath 'net.minecraftforge:gradleutils:2.2.0' // Required for changelog generation
     }
+}
+
+plugins {
+    id 'net.neoforged.gradle.neoform' version '7.1.39' apply false
+    id 'net.neoforged.gradle.userdev' version '7.1.39' apply false
 }
 
 apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
-apply plugin: 'net.minecraftforge.gradleutils'
 
-ext {
-    mod_version = gradleutils.getTagOffsetVersion()
-    changelog_file = rootProject.file("build/changelog.txt")
-    trimChangelog = (String text) -> {
-        def m = text =~ /(?s) - (?:[0-9.]+) (.+?)(?=( - )|$)/
-        return '```\n' + m[0][1].replaceAll(/(?m)^ */, '')
-    }
-}
 
 subprojects {
     apply plugin: 'java'
@@ -44,7 +39,7 @@ subprojects {
 
     version = "${minecraft_version}-${mod_version}"
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(25)
     java.withSourcesJar()
 
     jar {
@@ -66,6 +61,8 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven { url = "https://maven.terraformersmc.com/releases/"; content { includeGroup "com.terraformersmc" } }
+        maven { url = "https://api.modrinth.com/maven"; content { includeGroup "maven.modrinth" } }
         maven { name = 'Sponge / Mixin'; url = 'https://repo.spongepowered.org/repository/maven-public/' }
         maven { name = 'Forge'; url = "https://maven.minecraftforge.net" }
         maven { url "https://www.cursemaven.com"; content { includeGroup "curse.maven" } }
@@ -83,12 +80,12 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = 'UTF-8'
-        it.options.release.set(21)
+        it.options.release.set(25)
     }
 
     processResources {
         var expandProps = [
-                minecraft_version: minecraft_version,
+                minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range, loader_version: loader_version, fabric_version: fabric_version,
                 neoforge_version : neo_version, neoforge_version_range: neoforge_version_range, neoforge_loader_version_range: neoforge_loader_version_range,
                 mod_id           : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
                 mod_authors      : mod_authors, mod_description: mod_description,

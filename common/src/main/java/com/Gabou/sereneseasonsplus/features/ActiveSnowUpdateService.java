@@ -34,7 +34,7 @@ public final class ActiveSnowUpdateService {
     }
 
     private void runLocalAccumulation(ServerLevel level, BlockPos playerPos, int radius) {
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         for (int attempt = 0; attempt < CommonSnowBlockFeature.MAX_ATTEMPTS; attempt++) {
             int dx = random.nextInt(radius * 2 + 1) - radius;
             int dz = random.nextInt(radius * 2 + 1) - radius;
@@ -92,7 +92,7 @@ public final class ActiveSnowUpdateService {
     }
 
     private BlockPos sampleLocalMeltTarget(ServerLevel level, BlockPos playerPos, int radius, int sampleBudget) {
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
 
         for (int sample = 0; sample < sampleBudget; sample++) {

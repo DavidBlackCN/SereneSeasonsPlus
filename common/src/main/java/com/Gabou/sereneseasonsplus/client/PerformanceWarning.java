@@ -1,6 +1,6 @@
 package com.Gabou.sereneseasonsplus.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -16,30 +16,30 @@ public class PerformanceWarning extends Screen {
         int textWidth = this.font.width(text) + 20;
 
         this.addRenderableWidget(
-                Button.builder(Component.literal(text), btn -> this.minecraft.setScreen(null))
+                Button.builder(Component.literal(text), btn -> this.minecraft.gui.setScreen(null))
                         .bounds(this.width / 2 - textWidth / 2, this.height / 2, textWidth, 20)
                         .build()
         );
     }
 
     @Override
-    protected void renderBlurredBackground(GuiGraphics graphics) {
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-        graphics.drawCenteredString(this.font,
+        graphics.centeredText(this.font,
                 "This mod is optimized to work on the Sodium or Embeddium renderer",
-                this.width / 2, this.height / 2 - 50, 0xFFFFFF);
+                this.width / 2, this.height / 2 - 50, 0xFFFFFFFF);
 
-        graphics.drawCenteredString(this.font,
+        graphics.centeredText(this.font,
                 "No performance mod detected (Ex: Embeddium, Xenon, Chloride, Sodium, etc).",
-                this.width / 2, this.height / 2 - 35, 0xFF5555);
+                this.width / 2, this.height / 2 - 35, 0xFFFF5555);
 
-        graphics.drawCenteredString(this.font,
+        graphics.centeredText(this.font,
                 "Install one for better FPS!",
-                this.width / 2, this.height / 2 - 25, 0xFF5555);
+                this.width / 2, this.height / 2 - 25, 0xFFFF5555);
     }
 }

@@ -101,7 +101,7 @@ public class DefaultSnowEnvironmentHandler implements ISnowEnvironmentHandler {
                 hist.currentStormId = stormId;
                 // Generate and store the record now; computeGlobal* exclude currentStormId
                 if (!hist.snowHistory.containsKey(stormId)) {
-                    SnowRecord rec = SnowGenerator.generateStormRecord(level.random);
+                    SnowRecord rec = SnowGenerator.generateStormRecord(level.getRandom());
                     hist.snowHistory.put(stormId, rec);
                 }
                 CommonSnowBlockFeature.bumpSnowSyncGeneration();
@@ -114,7 +114,7 @@ public class DefaultSnowEnvironmentHandler implements ISnowEnvironmentHandler {
                 SnowHistorySavedData hist = SnowHistorySavedData.get();
                 // Ensure an entry exists for the ended storm; it may already have been created at start
                 if (!hist.snowHistory.containsKey(endedStormId)) {
-                    SnowRecord rec = SnowGenerator.generateStormRecord(level.random);
+                    SnowRecord rec = SnowGenerator.generateStormRecord(level.getRandom());
                     hist.snowHistory.put(endedStormId, rec);
                 }
                 // Persist the finished storm count

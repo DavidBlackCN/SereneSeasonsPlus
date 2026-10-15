@@ -36,7 +36,7 @@ public class NeoForgeSnowEnvironmentHandler extends DefaultSnowEnvironmentHandle
 //            );
 //            return temperature >= 0.5F
 //                    ? CommonSnowBlockFeature.calculateBlocksToReplace1(temperature)
-//                    : -level.random.nextInt(2, 6);
+//                    : -level.getRandom().nextInt(2, 6);
 //        }
     }
 
@@ -71,7 +71,7 @@ public class NeoForgeSnowEnvironmentHandler extends DefaultSnowEnvironmentHandle
         data.activeStorms.remove(hashCode);
 
         SnowHistorySavedData hist = SnowHistorySavedData.get();
-        SnowRecord rec = SnowGenerator.generateStormRecord(level.random);
+        SnowRecord rec = SnowGenerator.generateStormRecord(level.getRandom());
 
         data.stormCount++;
         hist.currentStormId = data.stormCount;

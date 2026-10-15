@@ -172,7 +172,7 @@ public final class ChunkQueue {
     }
 
     private static EntryKey keyFor(Entry entry) {
-        return new EntryKey(ChunkPos.asLong(entry.pos().x, entry.pos().z), entry.type(), entry.fullClear());
+        return new EntryKey(ChunkPos.pack(entry.pos().x(), entry.pos().z()), entry.type(), entry.fullClear());
     }
 
     public record Entry(ChunkPos pos, TaskType type, Season.SubSeason subSeason, boolean fullClear, int attempts) {

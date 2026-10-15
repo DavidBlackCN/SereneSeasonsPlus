@@ -42,8 +42,8 @@ public class SereneSeasonsPlusNeoForgeClient {
     public static void onClientTick(ClientTickEvent.Post event) {
             if (!shown && !PerfChecker.hasPerfMod()) {
                 Minecraft mc = Minecraft.getInstance();
-                if (mc.screen == null) { // wait until no other screen is open
-                    mc.setScreen(new PerformanceWarning());
+                if (mc.gui.screen() == null) { // wait until no other screen is open
+                    mc.gui.setScreen(new PerformanceWarning());
                     shown = true;
                 }
             }

@@ -145,14 +145,14 @@ public class CommonSnowBlockFeature {
         }
 
         if (needUpdateSnowFeature) {
-            server.getWorldData().getGameRules()
+            level.getGameRules()
                     .set(GameRules.MAX_SNOW_ACCUMULATION_HEIGHT, maxHeightForSnow, server);
             needUpdateSnowFeature = false;
         }
 
         chunkHandler(level);
 
-        if (level.random.nextInt(16) == 0 || (EnvironmentHelper.isHotSeason() && level.random.nextInt(2) == 0)) {
+        if (level.getRandom().nextInt(16) == 0 || (EnvironmentHelper.isHotSeason() && level.getRandom().nextInt(2) == 0)) {
             updatePlayerPositions(level.players());
             processPassiveSnowBlocks(level);
             EnvironmentHelper.checkAndUpdate(level);
@@ -240,7 +240,7 @@ public class CommonSnowBlockFeature {
             return;
         }
 
-        LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+        LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
         if (chunk == null) {
             if (entry.attempts() < ChunkQueue.MAX_DEFER_ATTEMPTS) {
                 ChunkQueue.requeueDeferred(entry);
@@ -334,7 +334,7 @@ public class CommonSnowBlockFeature {
     private static boolean hasRequiredNeighborChunks(ServerLevel level, ChunkPos chunkPos) {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
-                if (!level.hasChunk(chunkPos.x + dx, chunkPos.z + dz)) {
+                if (!level.hasChunk(chunkPos.x() + dx, chunkPos.z() + dz)) {
                     return false;
                 }
             }

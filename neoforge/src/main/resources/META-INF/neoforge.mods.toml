@@ -73,3 +73,48 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features."${mod_id}"]
 #openGLVersion="[3.2,)"
+
+[[dependencies."${mod_id}"]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "sereneseasons"
+type = "required"
+versionRange = "[26.1.2.0.7,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "glitchcore"
+type = "required"
+versionRange = "[26.3.0.0.5,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "betterdays"
+type = "required"
+versionRange = "[4.1.1.7,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "gaboulibs"
+type = "required"
+versionRange = ""
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "whitenoise"
+type = "required"
+versionRange = "[2.2.1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[features."${mod_id}"]
+javaVersion = "[25,)"

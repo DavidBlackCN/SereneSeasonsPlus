@@ -23,8 +23,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.SleepFinishedTimeEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -46,7 +47,7 @@ public class SereneSeasonsPlusNeoForge extends SereneSeasonPlusCommon {
         NeoForge.EVENT_BUS.register(this);
         CommonSnowBlockFeature.HANDLER = new NeoForgeSnowEnvironmentHandler();
         EnvironmentHelper.init(new NeoForgeEnvironmentHelper());
-        modContainer.registerConfig(ModConfig.Type.COMMON, SereneExtendedConfig.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.LOCAL, SereneExtendedConfig.COMMON_SPEC, "sereneseasonsplus-common.toml");
         if(!isProjectAtmosphereLoaded) {
             SeasonChangeEvent.register();
         }
@@ -68,7 +69,7 @@ public class SereneSeasonsPlusNeoForge extends SereneSeasonPlusCommon {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("Serene Seasons Extended is loading!");
         int clampedSnow = Mth.clamp(SereneExtendedConfig.MAX_SNOW_ACCUMULATION_LAYERS.get(), 0, 8);
-        event.getServer().getWorldData().getGameRules()
+        event.getServer().overworld().getGameRules()
                 .set(GameRules.MAX_SNOW_ACCUMULATION_HEIGHT, clampedSnow, event.getServer());
         CommonSnowBlockFeature.onServerStarting(SereneExtendedConfig.TICK_SNOW_REPLACER.get(), SereneExtendedConfig.SNOWSTORM_ENABLED.get(), clampedSnow);
     }
@@ -95,6 +96,7 @@ public class SereneSeasonsPlusNeoForge extends SereneSeasonPlusCommon {
      * @param event the server stopping event
      */
     public void onServerStopping(ServerStoppingEvent event) {
+        BetterDaysWakeTime.clear();
         SereneService.HANDLER.shutdown();
         SereneService.HANDLER = null;
         CommonSnowBlockFeature.onServerStopping();
@@ -140,12 +142,17 @@ public class SereneSeasonsPlusNeoForge extends SereneSeasonPlusCommon {
         DebugCommands.registerTo(event.getDispatcher());
     }
 
+    @SubscribeEvent(receiveCanceled = true)
+    public void onSleepFinishedTime(SleepFinishedTimeEvent event) {
+        BetterDaysWakeTime.apply(event);
+    }
+
     /**
      * When a player breaks a snow block/layer during an active storm, mark the column as destroyed
      * for this storm so our accumulation logic will not repopulate it until the next storm.
      */
     @SubscribeEvent
-    public void onBlockBreak(BlockEvent.BreakEvent event) {
+    public void onBlockBreak(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (level.dimension() != Level.OVERWORLD) return;
 

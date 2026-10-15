@@ -1,9 +1,20 @@
 plugins {
-    id "fabric-loom" version "1.14-SNAPSHOT"
+    id "net.fabricmc.fabric-loom" version "1.17.21"
     id 'com.hypherionmc.modutils.modpublisher' version '2.1.8'
     id "com.modrinth.minotaur"
 }
 base.archivesName.set("Fabric-Version-${mod_id}")
+
+sourceSets.test.java.srcDir project(':Common').file('src/test/java')
+tasks.register('checkMigration', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.Gabou.sereneseasonsplus.MigrationChecks'
+}
+tasks.named('check') { dependsOn tasks.named('checkMigration') }
+tasks.named('sourcesJar', Jar) {
+    from(project(':Common').sourceSets.main.allSource)
+}
 
 loom {
     // Sépare les sources client et serveur
@@ -39,7 +50,7 @@ loom {
 processResources {
     from project(":Common").sourceSets.main.resources
 }
-tasks.withType(JavaCompile) {
+tasks.named('compileJava', JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
 }
 tasks.withType(Jar) {
@@ -50,44 +61,33 @@ tasks.withType(Test).configureEach {
 }
 
 dependencies {
+    testImplementation "org.ow2.asm:asm-tree:9.8"
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
 
-    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     include implementation("com.electronwill.night-config:toml:${nightconfig_version}")
     include implementation("com.electronwill.night-config:core:${nightconfig_version}")
     include implementation("net.jodah:typetools:0.6.3")
-    implementation project(":Common")
-    modImplementation "curse.maven:betterdays-895618:7443509"
+    compileOnly project(":Common") // Common sources and resources are bundled above.
+    implementation "maven.modrinth:betterdays:nGUdicIW"
     compileOnly "curse.maven:snow-real-magic-fabric-560441:7472578"
-    modImplementation "curse.maven:serene-seasons-291874:7330938"
-    modImplementation "curse.maven:glitchcore-955399:7335722"
+    implementation "curse.maven:serene-seasons-291874:8938724"
+    implementation "curse.maven:glitchcore-955399:9125345"
     runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
     runtimeOnly("org.apache.httpcomponents:httpclient:4.5.13")
-    modImplementation "curse.maven:modmenu-308702:7441070"
-    modImplementation "curse.maven:architectury-api-419699:7339256"
-    modImplementation "curse.maven:gaboulibs-1367332:7495338"
-    modImplementation group: 'technology.roughness.whitenoise', name: "whitenoise-${minecraft_version}-fabric", version: "${whitenoise_range}"
+    implementation "com.terraformersmc:modmenu:21.0.0"
+    implementation "curse.maven:architectury-api-419699:9111314"
+    // GabouLibs is being ported separately. Use its existing Mojang-named API
+    // for compilation only; never load the old intermediary Fabric jar on 26.3.
+    compileOnly "curse.maven:gaboulibs-1367332:7495339"
+    if (providers.gradleProperty('gaboulibs_fabric_jar').isPresent()) {
+        runtimeOnly files(providers.gradleProperty('gaboulibs_fabric_jar').get())
+    }
+    implementation group: 'technology.roughness.whitenoise', name: "whitenoise-${minecraft_version}-fabric", version: "${whitenoise_version}"
 }
 
-//tasks.named("remapJar") {
-//    doLast {
-//        def jarFile = archiveFile.get().asFile
-//        def tmpDir = new File(jarFile.parentFile, jarFile.name + ".tmpdir")
-//        if (tmpDir.exists()) tmpDir.deleteDir()
-//        copy {
-//            from zipTree(jarFile)
-//            into tmpDir
-//            exclude("client-*-refmap.json")
-//        }
-//        jarFile.delete()
-//        ant.zip(destfile: jarFile, basedir: tmpDir)
-//        tmpDir.deleteDir()
-//    }
-//}
-
-def fabricUploadJar = tasks.named("remapJar").flatMap { it.archiveFile }
+def fabricUploadJar = tasks.named("jar").flatMap { it.archiveFile }
 
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
@@ -95,7 +95,7 @@ modrinth {
     versionNumber = "Fabric-${project.version}"
     versionName = "Serene Seasons Plus ${mod_version}"
     changelog = rootProject.file("SSPchangelog.md").text
-    gameVersions = ["1.21.11"]
+    gameVersions = [minecraft_version]
     loaders = ["fabric"]
     versionType = "beta"
     dependencies {
@@ -114,10 +114,10 @@ if (curseForgeToken) {
         setVersionType("release")
         setChangelog(rootProject.file("SSPchangelog.md"))
         setDisplayName("Fabric-${project.version}")
-        setGameVersions("1.21.11")
+        setGameVersions(minecraft_version)
         setLoaders("fabric")
         setCurseEnvironment("both")
-        getJavaVersions().set([JavaVersion.VERSION_21])
+        getJavaVersions().set([JavaVersion.VERSION_25])
         setArtifact(fabricUploadJar.get().asFile)
         setDebug(providers.gradleProperty("publisherDebug").map { it.toBoolean() }.orElse(false).get())
     }

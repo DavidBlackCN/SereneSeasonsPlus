@@ -58,7 +58,7 @@ public class ServerLevelMixin  {
             method = "tickChunk",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;getBlockRandomPos(I I I I)Lnet/minecraft/core/BlockPos;",
+                    target = "Lnet/minecraft/server/level/ServerLevel;getBlockRandomPos(IIII)Lnet/minecraft/core/BlockPos;",
                     shift = At.Shift.BEFORE
             )
     )
@@ -71,7 +71,7 @@ public class ServerLevelMixin  {
         if (CommonSnowBlockFeature.isSnowFeatureEnabled()) {
             int t = CommonSnowBlockFeature.getTickCounter();
             ChunkPos cpos = chunk.getPos();
-            boolean doEval = ((cpos.x ^ cpos.z ^ t) & 15) == 0; // ~once per 16 ticks per ticking chunk
+            boolean doEval = ((cpos.x() ^ cpos.z() ^ t) & 15) == 0; // ~once per 16 ticks per ticking chunk
             if (doEval && chunk instanceof ISnowTrackedChunk tracked) {
                 Season.SubSeason currentSeason = EnvironmentHelper.getCurrentSeason();
                 var seasonState = SeasonHelper.getSeasonState(level);
@@ -175,7 +175,7 @@ public class ServerLevelMixin  {
             method = "tickPrecipitation",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z"
             ),
             slice = @Slice(
                     from = @At(
@@ -207,7 +207,7 @@ public class ServerLevelMixin  {
             method = "tickPrecipitation",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z"
             ),
             slice = @Slice(
                     from = @At(
@@ -221,8 +221,8 @@ public class ServerLevelMixin  {
             ),
             require = 1
     )
-    private boolean sereneseasonsplus$gateSnowIsCheckSliced(BlockState state, Block block) {
-        return ServerPrecipitationService.shouldTreatAsSnow(state, block, sereneseasonsplus$shouldSkipSnowCheck);
+    private boolean sereneseasonsplus$gateSnowIsCheckSliced(BlockState state, Object block) {
+        return ServerPrecipitationService.shouldTreatAsSnow(state, (Block) block, sereneseasonsplus$shouldSkipSnowCheck);
     }
 
 

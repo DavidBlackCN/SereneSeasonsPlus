@@ -41,7 +41,7 @@ public final class SnowChunkWeatherLogic {
         if (CommonSnowBlockFeature.isSnowFeatureEnabled()) {
             int t = CommonSnowBlockFeature.getTickCounter();
             ChunkPos cpos = chunk.getPos();
-            boolean doEval = ((cpos.x ^ cpos.z ^ t) & 15) == 0; // ~once per 16 ticks per ticking chunk
+            boolean doEval = ((cpos.x() ^ cpos.z() ^ t) & 15) == 0; // ~once per 16 ticks per ticking chunk
             if (doEval && chunk instanceof ISnowTrackedChunk tracked) {
                 Season.SubSeason currentSeason = EnvironmentHelper.getCurrentSeason();
                 var seasonState = SeasonHelper.getSeasonState(level);
@@ -64,7 +64,7 @@ public final class SnowChunkWeatherLogic {
 
         ProfilerFiller profiler = Profiler.get();
         profiler.popPush("iceandsnow");
-        if (level.random.nextInt(16) == 0) {
+        if (level.getRandom().nextInt(16) == 0) {
             boolean snowRealMagicLoaded = EnvironmentHelper.isSnowRealMagicLoaded();
             int j = chunk.getPos().getMinBlockX();
             int k = chunk.getPos().getMinBlockZ();

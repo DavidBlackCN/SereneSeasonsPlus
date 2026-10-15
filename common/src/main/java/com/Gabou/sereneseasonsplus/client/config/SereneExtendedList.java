@@ -1,7 +1,7 @@
 package com.Gabou.sereneseasonsplus.client.config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -78,17 +78,17 @@ public class SereneExtendedList extends ObjectSelectionList<SereneExtendedList.R
         }
 
         @Override
-        public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
             int x = this.getX();
             int y = this.getY();
             int rowWidth = this.getWidth();
             int rowHeight = this.getHeight();
             layoutIfNeeded(x, y, rowWidth, rowHeight);
 
-            graphics.drawString(owner.minecraft.font, label, x, y + 6, 0xFFFFFF, false);
+            graphics.text(owner.minecraft.font, label, x, y + 6, 0xFFFFFFFF, false);
 
             for (AbstractWidget widget : widgets) {
-                widget.render(graphics, mouseX, mouseY, delta);
+                widget.extractRenderState(graphics, mouseX, mouseY, delta);
             }
         }
 

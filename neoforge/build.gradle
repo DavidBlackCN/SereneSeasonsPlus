@@ -1,5 +1,5 @@
 plugins {
-    id 'net.neoforged.gradle.userdev' version '7.1.20'
+    id 'net.neoforged.gradle.userdev'
 //    id "net.neoforged.gradle.mixin" version '7.0.192'
     id 'com.hypherionmc.modutils.modpublisher' version '2.1.8'
     id "com.modrinth.minotaur"
@@ -7,12 +7,15 @@ plugins {
 
 base.archivesName.set("NeoForge-Version-${mod_name}")
 
+sourceSets.test.java.srcDir project(':Common').file('src/test/java')
 
-minecraft {
-    mappings {
-        channel = official()
-        version.put "minecraft", minecraft_version
-    }
+tasks.register('checkMigration', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.Gabou.sereneseasonsplus.MigrationChecks'
+}
+tasks.named('check') { dependsOn tasks.named('checkMigration') }
+
 
     runs {
         configureEach {
@@ -48,31 +51,23 @@ minecraft {
             arguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
     }
-}
-configurations.all {
-    // Keep NeoForge's ASM 9.8
-    resolutionStrategy.force "org.ow2.asm:asm:9.8",
-            "org.ow2.asm:asm-commons:9.8",
-            "org.ow2.asm:asm-tree:9.8",
-            "org.ow2.asm:asm-util:9.8",
-            "org.ow2.asm:asm-analysis:9.8"
-
-    // Prevent older ASM from leaking in
-    exclude group: "org.ow2.asm", module: "asm-all"
-    exclude group: "org.ow2.asm", module: "asm-debug-all"
-}
 
 dependencies {
+    testImplementation "org.ow2.asm:asm-tree:9.8"
     implementation "net.neoforged:neoforge:${neo_version}"
-    implementation project(":Common") // gives you sources & resources
-    implementation "curse.maven:serene-seasons-291874:7330937"
-    implementation "curse.maven:glitchcore-955399:7335721"
-    implementation "curse.maven:betterdays-895618:7443510"
+    compileOnly project(":Common") // Common sources and resources are bundled below.
+    implementation "curse.maven:serene-seasons-291874:8938722"
+    implementation "curse.maven:glitchcore-955399:9125343"
+    implementation "maven.modrinth:betterdays:5jl3V5Dw"
     runtimeOnly "me.djtheredstoner:DevAuth-neoforge:1.2.1"
     compileOnly "curse.maven:project-atmosphere-1258344:7070436"
-    implementation "curse.maven:spark-361579:7315224"
-    implementation "curse.maven:architectury-api-419699:7339257"
-    implementation "curse.maven:gaboulibs-1367332:7495339"
+    implementation "maven.modrinth:spark:HwHxykP9"
+    implementation "curse.maven:architectury-api-419699:9111315"
+    // Compile against the existing API until the separate GabouLibs port is ready.
+    compileOnly "curse.maven:gaboulibs-1367332:7495339"
+    if (providers.gradleProperty('gaboulibs_neoforge_jar').isPresent()) {
+        runtimeOnly files(providers.gradleProperty('gaboulibs_neoforge_jar').get())
+    }
     compileOnly "curse.maven:snow-real-magic-308663:7472610"
     implementation group: 'technology.roughness.whitenoise', name: "whitenoise-${minecraft_version}-neoforge", version: "${whitenoise_version}"
     //runtimeOnly "curse.maven:rubidium-extra-654373:5176872"
@@ -81,7 +76,7 @@ dependencies {
 TaskCollection.metaClass.excludingNeoTasks = { ->
     delegate.matching { !it.name.startsWith("neo") }
 }
-tasks.withType(JavaCompile).excludingNeoTasks().configureEach {
+tasks.named('compileJava', JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
 }
 
@@ -94,7 +89,7 @@ tasks.withType(Test).configureEach {
 tasks.named("sourcesJar", Jar) {
     from(project(":Common").sourceSets.main.allSource)
 }
-tasks.withType(ProcessResources).excludingNeoTasks().configureEach {
+tasks.named('processResources', ProcessResources) {
     from project(":Common").sourceSets.main.resources
     filesMatching("${mod_id}.mixins.json") {
         expand "refmap_target": "sereneseasonplus."
@@ -108,7 +103,7 @@ modrinth {
     versionNumber = "NeoForge-${project.version}"
     versionName = "Serene Seasons Plus ${mod_version}"
     changelog = rootProject.file("SSPchangelog.md").text
-    gameVersions = ["1.21.11"]
+    gameVersions = [minecraft_version]
     loaders = ["neoforge"]
     versionType = "beta"
     dependencies {
@@ -127,10 +122,10 @@ if (curseForgeToken) {
         setVersionType("release")
         setChangelog(rootProject.file("SSPchangelog.md"))
         setDisplayName("NeoForge-${project.version}")
-        setGameVersions("1.21.11")
+        setGameVersions(minecraft_version)
         setLoaders("neoforge")
         setCurseEnvironment("both")
-        getJavaVersions().set([JavaVersion.VERSION_21])
+        getJavaVersions().set([JavaVersion.VERSION_25])
         setArtifact(neoforgeUploadJar.get().asFile)
         setDebug(providers.gradleProperty("publisherDebug").map { it.toBoolean() }.orElse(false).get())
     }

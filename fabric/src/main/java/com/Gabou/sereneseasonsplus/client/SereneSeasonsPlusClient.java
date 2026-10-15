@@ -10,8 +10,8 @@ public class  SereneSeasonsPlusClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!shown && !PerfChecker.hasPerfMod()) {
-                if (client.screen == null) { // wait until no other screen is open
-                    client.setScreen(new PerformanceWarning());
+                if (client.gui.screen() == null) { // wait until no other screen is open
+                    client.gui.setScreen(new PerformanceWarning());
                     shown = true;
                 }
             }

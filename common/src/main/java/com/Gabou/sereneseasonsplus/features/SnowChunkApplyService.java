@@ -98,12 +98,12 @@ public final class SnowChunkApplyService {
             if (savedData.currentStormId > 0) {
                 SnowRecord activeRecord = savedData.snowHistory.get(savedData.currentStormId);
                 if (activeRecord != null) {
-                    return applySnowPattern(level, chunk, activeRecord, level.random) || any;
+                    return applySnowPattern(level, chunk, activeRecord, level.getRandom()) || any;
                 }
             } else {
                 SnowRecord combined = historyQueryService.aggregateFinishedStormSums(level);
                 if (combined != null) {
-                    return applyCombinedFinishedPattern(level, chunk, combined, level.random) || any;
+                    return applyCombinedFinishedPattern(level, chunk, combined, level.getRandom()) || any;
                 }
             }
         }
@@ -118,11 +118,11 @@ public final class SnowChunkApplyService {
 
         if (savedData.currentStormId > 0) {
             SnowRecord activeRecord = savedData.snowHistory.get(savedData.currentStormId);
-            return activeRecord != null && applySnowPattern(level, chunk, activeRecord, level.random);
+            return activeRecord != null && applySnowPattern(level, chunk, activeRecord, level.getRandom());
         }
 
         SnowRecord combined = historyQueryService.aggregateFinishedStormSums(level);
-        return combined != null && applyCombinedFinishedPattern(level, chunk, combined, level.random);
+        return combined != null && applyCombinedFinishedPattern(level, chunk, combined, level.getRandom());
     }
 
     public boolean hasApplicableStormRecord(ServerLevel level) {
@@ -141,7 +141,7 @@ public final class SnowChunkApplyService {
         if (savedData != null && savedData.currentStormId > 0) {
             SnowRecord record = savedData.snowHistory.get(savedData.currentStormId);
             if (record != null) {
-                return applySnowPattern(level, chunk, record, level.random);
+                return applySnowPattern(level, chunk, record, level.getRandom());
             }
         }
         return false;

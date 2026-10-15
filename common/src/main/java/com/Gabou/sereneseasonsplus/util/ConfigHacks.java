@@ -34,7 +34,7 @@ public class ConfigHacks {
             return;
         }
         warningLogged = true;
-        LOGGER.warn("Better Days dynamic time compatibility is enabled. Serene Seasons Plus will update Better Days daySpeed/nightSpeed using reflection because Better Days 1.21.11 does not expose a public seasonal speed API.");
+        LOGGER.warn("Better Days dynamic time compatibility is enabled. Serene Seasons Plus will update Better Days daySpeed/nightSpeed using reflection because Better Days 26.3 does not expose a public seasonal speed API.");
     }
 
     private static void setConfigValues(double day,double night, Field commonField) throws IllegalAccessException, NoSuchFieldException {

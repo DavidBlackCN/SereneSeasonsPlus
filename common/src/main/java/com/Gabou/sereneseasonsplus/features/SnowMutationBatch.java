@@ -48,7 +48,7 @@ public final class SnowMutationBatch {
         if (pendingColumnMapUpdates.containsKey(chunkPos) || pendingIceAdds.containsKey(chunkPos)) {
             return true;
         }
-        return pendingChunkChangeCounts.containsKey(ChunkPos.asLong(chunkPos.x, chunkPos.z));
+        return pendingChunkChangeCounts.containsKey(ChunkPos.pack(chunkPos.x(), chunkPos.z()));
     }
 
     public boolean queueClearIfNeeded(ServerLevel level, BlockPos pos, boolean toWater) {
@@ -72,7 +72,7 @@ public final class SnowMutationBatch {
         BlockPos immutable = mutation.key().immutable();
         SnowWorldMutation previous = pendingChanges.put(immutable, mutation);
         if (previous == null) {
-            long chunkKey = ChunkPos.asLong(immutable.getX() >> 4, immutable.getZ() >> 4);
+            long chunkKey = ChunkPos.pack(immutable.getX() >> 4, immutable.getZ() >> 4);
             pendingChunkChangeCounts.merge(chunkKey, 1, Integer::sum);
         }
     }
@@ -113,7 +113,7 @@ public final class SnowMutationBatch {
                 BlockPos trackingPos = mutation.trackingPos();
                 accumulateColumnUpdate(level, trackingPos, level.getBlockState(trackingPos), compatibility);
             }
-            long chunkKey = ChunkPos.asLong(mutation.key().getX() >> 4, mutation.key().getZ() >> 4);
+            long chunkKey = ChunkPos.pack(mutation.key().getX() >> 4, mutation.key().getZ() >> 4);
             pendingChunkChangeCounts.computeIfPresent(chunkKey, (key, count) -> count > 1 ? count - 1 : null);
             iterator.remove();
             applied++;
@@ -126,11 +126,11 @@ public final class SnowMutationBatch {
         if (!pendingColumnMapUpdates.isEmpty()) {
             for (Map.Entry<ChunkPos, Map<BlockPos, Integer>> entry : pendingColumnMapUpdates.entrySet()) {
                 ChunkPos chunkPos = entry.getKey();
-                if (!level.hasChunk(chunkPos.x, chunkPos.z)) {
+                if (!level.hasChunk(chunkPos.x(), chunkPos.z())) {
                     continue;
                 }
 
-                LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+                LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
                 if (!(chunk instanceof ISnowTrackedChunk tracked)) {
                     continue;
                 }
@@ -151,11 +151,11 @@ public final class SnowMutationBatch {
         if (!pendingIceAdds.isEmpty()) {
             for (Map.Entry<ChunkPos, Set<BlockPos>> entry : pendingIceAdds.entrySet()) {
                 ChunkPos chunkPos = entry.getKey();
-                if (!level.hasChunk(chunkPos.x, chunkPos.z)) {
+                if (!level.hasChunk(chunkPos.x(), chunkPos.z())) {
                     continue;
                 }
 
-                LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+                LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
                 if (!(chunk instanceof ISnowTrackedChunk tracked)) {
                     continue;
                 }
@@ -171,10 +171,10 @@ public final class SnowMutationBatch {
         }
 
         for (ChunkPos chunkPos : chunksToDirty) {
-            if (!level.hasChunk(chunkPos.x, chunkPos.z)) {
+            if (!level.hasChunk(chunkPos.x(), chunkPos.z())) {
                 continue;
             }
-            LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+            LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
             if (chunk != null) {
                 chunk.markUnsaved();
             }

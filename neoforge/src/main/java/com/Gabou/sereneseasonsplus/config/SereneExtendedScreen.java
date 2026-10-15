@@ -2,7 +2,7 @@ package com.Gabou.sereneseasonsplus.config;
 
 import com.Gabou.sereneseasonsplus.client.config.SereneExtendedList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -150,7 +150,7 @@ public class SereneExtendedScreen extends Screen {
         this.addRenderableWidget(
                 Button.builder(Component.translatable("gui.done"), b -> {
                     if (saveChanges()) {
-                        this.minecraft.setScreen(parent);
+                        this.minecraft.gui.setScreen(parent);
                     }
                 }).bounds(panelX + (panelW - 200) / 2, bottom - 28, 200, 20).build()
         );
@@ -161,21 +161,21 @@ public class SereneExtendedScreen extends Screen {
     /**
      * Draws background, panel chrome, and delegates to list/widgets.
      */
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(g, mouseX, mouseY, partialTick);
         if (this.errorMessage != null) {
-            g.drawCenteredString(this.font, this.errorMessage, this.width / 2, this.height - 47, 0xFFFF5555);
+            g.centeredText(this.font, this.errorMessage, this.width / 2, this.height - 47, 0xFFFF5555);
         }
     }
 
     @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(g, mouseX, mouseY, partialTick);
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(g, mouseX, mouseY, partialTick);
         int panelW = Math.min(MAX_PANEL_WIDTH, Math.max(280, this.width - PANEL_MARGIN * 2));
         int panelX = (this.width - panelW) / 2;
         int bottom = this.height - PANEL_BOTTOM_MARGIN;
         g.fill(panelX, PANEL_TOP, panelX + panelW, bottom, 0xCC101010);
-        g.drawCenteredString(this.font, this.title, this.width / 2, PANEL_TOP + 8, 0xFFFFFF);
+        g.centeredText(this.font, this.title, this.width / 2, PANEL_TOP + 8, 0xFFFFFFFF);
     }
 
     /**
@@ -237,7 +237,7 @@ public class SereneExtendedScreen extends Screen {
      */
     public void onClose() {
         this.setFocused(false);
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

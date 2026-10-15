@@ -24,7 +24,7 @@ public final class SnowChunkMeltService {
     }
 
     public boolean meltSnowInChunk(ServerLevel level, ChunkPos chunkPos, boolean fullClear) {
-        LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, false);
+        LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), false);
         if (!(chunk instanceof ISnowTrackedChunk tracked)) {
             return false;
         }
